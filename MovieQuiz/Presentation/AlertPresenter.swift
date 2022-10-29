@@ -4,7 +4,7 @@ import UIKit
 class AlertPresenter {
     
     private let model: AlertModel
-    var viewController: UIViewController?
+    weak var viewController: UIViewController?
     
     init(modelToShowAlert model: AlertModel){
         self.model = model

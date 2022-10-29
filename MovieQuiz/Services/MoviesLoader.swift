@@ -28,7 +28,8 @@ struct MoviesLoader: MoviesLoading {
             case .success(let data):
                 let moviesList = try? JSONDecoder().decode(MostPopularMovies.self, from: data)
                 if let moviesList = moviesList {
-                    handler(.success(moviesList)) } else {
+                    handler(.success(moviesList))
+                } else {
                         handler(.failure(DecodingError.decodingError))
                     }
             }

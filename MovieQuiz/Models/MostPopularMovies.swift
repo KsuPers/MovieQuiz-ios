@@ -2,6 +2,7 @@ import Foundation
 
 struct MostPopularMovies: Codable {
     let errorMessage: String
+    // надо обработать ошибку так чтобы даже если она произойдет выгружались моки?
     let items: [MostPopularMovie]
 }
 

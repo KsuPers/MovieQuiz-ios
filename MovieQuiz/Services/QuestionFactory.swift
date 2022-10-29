@@ -2,7 +2,7 @@ import Foundation
 
 class QuestionFactory: QuestionFactoryProtocol {
     private let moviesLoader: MoviesLoading
-    private let delegate: QuestionFactoryDelegate
+    weak var delegate: QuestionFactoryDelegate?
     
     init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate) {
         self.moviesLoader = moviesLoader
@@ -18,9 +18,9 @@ class QuestionFactory: QuestionFactoryProtocol {
                 switch result {
                 case .success(let mostPopularMovies):
                     self.movies = mostPopularMovies.items
-                    self.delegate.didLoadDataFromServer()
+                    self.delegate?.didLoadDataFromServer()
                 case .failure(let error):
-                    self.delegate.didFailToLoadData(with: error)
+                    self.delegate?.didFailToLoadData(with: error)
                 }
             }
         }
@@ -91,10 +91,11 @@ class QuestionFactory: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
+                return self.requestNextQuestion()
+                // если ошибка то загрузи другую картинку
             }
             
             let rating = Float(movie.rating) ?? 0
-            // Но вы можете подумать, как сделать так, чтобы рейтинг был разным для каждого вопроса. (Это задание не является обязательным.) - создать массив от 6 до 9, выбирать рандомное число оттуда и вставлять в вопросе, потом с ним же сравнивать
             let currentRating = (6...9).randomElement()
             let text = "Рейтинг этого фильма больше чем \(currentRating ?? 6)?"
             let correctAnswer = rating > Float(currentRating ?? 6)
@@ -105,7 +106,7 @@ class QuestionFactory: QuestionFactoryProtocol {
             
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
-                self.delegate.didRecieveNextQuestion(question: question)
+                self.delegate?.didReceiveNextQuestion(question: question)
             }
         }
     }
