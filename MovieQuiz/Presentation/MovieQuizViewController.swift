@@ -70,8 +70,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
                                                 }))
         
         alertPresenter?.alertViewController = self
-        guard let alertPresenter = alertPresenter else { return }
-        alertPresenter.showAlert()
+        alertPresenter?.showAlert()
     }
     
     func showAlert(){
@@ -87,10 +86,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
                                                     self.presenter.restartGame()
                                                 }))
         
-        
         alertPresenter?.alertViewController = self
-        guard let alertPresenter = alertPresenter else { return }
-        alertPresenter.showAlert()
+        alertPresenter?.showAlert()
     }
     
     func show(quiz step: QuizStepViewModel) {

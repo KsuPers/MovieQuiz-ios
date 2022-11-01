@@ -4,30 +4,32 @@ class MovieQuizUITests: XCTestCase {
     
     var app: XCUIApplication!
     
-    func testYesButton () {
-        
-        let firstPoster = app.images["Poster"]
+    
+    func testYesButton() {
+        let Poster = XCUIApplication().images["Poster"]
+        let screenshotBefore = Poster.screenshot()
         app.buttons["Да"].tap()
-        let secondPoster = app.images["Poster"]
+        let screenshotAfter = Poster.screenshot()
         let indexLabel = app.staticTexts["Index"]
-        
-        sleep(3)
+
+        sleep(2)
         
         XCTAssertTrue(indexLabel.label == "2/10")
-        XCTAssertFalse(firstPoster == secondPoster)
+        XCTAssertNotEqual(screenshotBefore.pngRepresentation, screenshotAfter.pngRepresentation)
     }
     
     func testNoButton () {
         
-        let firstPoster = app.images["Poster"]
+        let Poster = XCUIApplication().images["Poster"]
+        let screenshotBefore = Poster.screenshot()
         app.buttons["Нет"].tap()
-        let secondPoster = app.images["Poster"]
+        let screenshotAfter = Poster.screenshot()
         let indexLabel = app.staticTexts["Index"]
-        
-        sleep(3)
+
+        sleep(2)
         
         XCTAssertTrue(indexLabel.label == "2/10")
-        XCTAssertFalse(firstPoster == secondPoster)
+        XCTAssertNotEqual(screenshotBefore.pngRepresentation, screenshotAfter.pngRepresentation)
     }
     
     func testGameFinish() {
@@ -35,7 +37,7 @@ class MovieQuizUITests: XCTestCase {
             app.buttons["No"].tap()
         }
         
-        sleep(3)
+        sleep(2)
         
         let alert = app.alerts.firstMatch
         
@@ -49,12 +51,12 @@ class MovieQuizUITests: XCTestCase {
             app.buttons["No"].tap()
         }
         
-        sleep(3)
+        sleep(2)
         
         let alert = app.alerts.firstMatch
         alert.buttons.firstMatch.tap()
         
-        sleep(3)
+        sleep(2)
         
         XCTAssertFalse(alert.exists)
         XCTAssertTrue(app.staticTexts["Index"].label == "1/10")

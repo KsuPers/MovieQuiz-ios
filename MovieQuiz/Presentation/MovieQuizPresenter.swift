@@ -10,7 +10,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var correctAnswers: Int = 0
     private let statisticService: StatisticService!
     var questionFactory: QuestionFactoryProtocol?
-    private let viewController: MovieQuizViewControllerProtocol
+    private weak var viewController: MovieQuizViewControllerProtocol?
     
     
     init(viewController: MovieQuizViewControllerProtocol = MovieQuizViewController()) {
@@ -26,13 +26,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     // MARK: - QuestionFactoryDelegate
     
     func didLoadDataFromServer() {
-        viewController.hideLoadingIndicator()
+        viewController?.hideLoadingIndicator()
         questionFactory?.requestNextQuestion()
     }
     
     func didFailToLoadData(with error: Error) {
         let message = error.localizedDescription
-        viewController.showNetworkError(message: message)
+        viewController?.showNetworkError(message: message)
     }
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -43,7 +43,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         currentQuestion = question
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
-            self?.viewController.show(quiz: viewModel)
+            self?.viewController?.show(quiz: viewModel)
         }
     }
     
@@ -66,7 +66,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     func proceedToNextQuestionOrResults() {
         if  self.isLastQuestion()
         {
-            viewController.showAlert()
+            viewController?.showAlert()
         } else {
             self.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
@@ -74,12 +74,11 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func proceedWithAnswer(isCorrect: Bool) {
-        //didAnswer(isYes: isCorrect)
         if isCorrect {
             correctAnswers += 1
         }
         
-        viewController.highlightImageBorder(isCorrectAnswer: isCorrect)
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
