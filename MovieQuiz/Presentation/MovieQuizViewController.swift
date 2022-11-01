@@ -1,5 +1,6 @@
 import UIKit
 
+
 final class MovieQuizViewController: UIViewController {
     
     
@@ -20,7 +21,7 @@ final class MovieQuizViewController: UIViewController {
     //private var currentQuestion: QuizQuestion?
     private var presenter: MovieQuizPresenter!
     var alertPresenter: AlertPresenter?
-    private var statisticService: StatisticService?
+    //private var statisticService: StatisticService?
     
     
     // MARK: - Lifecycle
@@ -31,7 +32,7 @@ final class MovieQuizViewController: UIViewController {
         
         imageView.layer.cornerRadius = 20
         
-        statisticService = StatisticServiceImplementation()
+        //statisticService = StatisticServiceImplementation()
         //questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         
         //questionFactory?.loadData()
@@ -81,9 +82,10 @@ final class MovieQuizViewController: UIViewController {
                                                 message: message,
                                                 buttonText: "Попробовать еще раз",
                                                 completion: {
-                                                    self.showLoadingIndicator()
-                                                    self.presenter.questionFactory?.loadData()
-                                                    self.presenter.questionFactory?.requestNextQuestion()
+                                                    self.presenter.restartGame()
+                                                    //self.showLoadingIndicator()
+                                                    //self.presenter.questionFactory?.loadData()
+                                                    //self.presenter.questionFactory?.requestNextQuestion()
                                                 }))
         
         alertPresenter?.alertViewController = self
@@ -91,20 +93,22 @@ final class MovieQuizViewController: UIViewController {
     }
     
     func showAlert(){
-        guard let statisticService = statisticService else {
-            return
-        }
+        let message = presenter.makeResultsMessage()
         
-        statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
+        //guard let statisticService = statisticService else { return }
+        
+        //statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
         
         
-        let text = """
+        let text = message
+        /*
+"""
 Ваш результат: \(presenter.correctAnswers) из \(presenter.questionsAmount)
 Количество сыгранных квизов: \(statisticService.gamesCount)
 Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))
 Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy as CVarArg))%
 """
-        
+      */
         alertPresenter = AlertPresenter(modelToShowAlert:
                                             AlertModel.init(
                                                 title: "Этот раунд окончен!",
@@ -125,11 +129,14 @@ final class MovieQuizViewController: UIViewController {
     
     func show(quiz step: QuizStepViewModel) {
         
-        guard let currentQuestion = presenter.currentQuestion else { return }
+        //guard let currentQuestion = presenter.currentQuestion else { return }
         imageView.layer.borderColor = UIColor.clear.cgColor
-        counterLabel.text = presenter.convert(model: currentQuestion).questionNumber
-        textLabel.text = presenter.convert(model: currentQuestion).question
-        imageView.image = presenter.convert(model: currentQuestion).image
+        imageView.image = step.image
+        textLabel.text = step.question
+        counterLabel.text = step.questionNumber
+        //counterLabel.text = presenter.convert(model: currentQuestion).questionNumber
+        //textLabel.text = presenter.convert(model: currentQuestion).question
+        //imageView.image = presenter.convert(model: currentQuestion).image
     }
     /*
      
@@ -177,7 +184,12 @@ final class MovieQuizViewController: UIViewController {
         }
     }
      */
-    
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+            imageView.layer.masksToBounds = true
+            imageView.layer.borderWidth = 8
+            imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        }
+    /*
     func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             presenter.correctAnswers += 1
@@ -200,4 +212,5 @@ final class MovieQuizViewController: UIViewController {
             self.noButton.isEnabled = true
         }
     }
+    */
 }

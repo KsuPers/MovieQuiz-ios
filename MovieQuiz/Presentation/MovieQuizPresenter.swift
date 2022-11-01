@@ -4,17 +4,20 @@ import UIKit
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     // MARK: - Fields
-    let questionsAmount: Int = 10
+    private let questionsAmount: Int = 10
     private var currentQuestionIndex: Int = 0
-    var currentQuestion: QuizQuestion?
-    var correctAnswers: Int = 0
-    var questionFactory: QuestionFactoryProtocol?
-    weak var viewController: MovieQuizViewController?
+    private var currentQuestion: QuizQuestion?
+    private var correctAnswers: Int = 0
+    private let statisticService: StatisticService!
+    private var questionFactory: QuestionFactoryProtocol?
+    private weak var viewController: MovieQuizViewController?
     //private var alertPresenter: AlertPresenter?
     //private var statisticService: StatisticService?
     
     init(viewController: MovieQuizViewController) {
             self.viewController = viewController
+            
+            statisticService = StatisticServiceImplementation()
             
             questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
             questionFactory?.loadData()
@@ -73,7 +76,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
         if  self.isLastQuestion()
         {
             viewController?.showAlert()
@@ -82,6 +85,21 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             questionFactory?.requestNextQuestion()
         }
     }
+    
+    func proceedWithAnswer(isCorrect: Bool) {
+            //didAnswer(isYes: isCorrect)
+        if isCorrect {
+            correctAnswers += 1
+        }
+            
+            viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self else { return }
+                self.proceedToNextQuestionOrResults()
+            }
+        }
+    
     // MARK: - Added functions
     
     func isLastQuestion() -> Bool {
@@ -103,13 +121,31 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         let givenAnswer = isYes
         
-        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
     func restartGame() {
             currentQuestionIndex = 0
             correctAnswers = 0
             questionFactory?.requestNextQuestion()
+        }
+    
+    func makeResultsMessage() -> String {
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+            
+            let bestGame = statisticService.bestGame
+            
+            let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+            let currentGameResultLine = "Ваш результат: \(correctAnswers)\\\(questionsAmount)"
+            let bestGameInfoLine = "Рекорд: \(bestGame.correct)\\\(bestGame.total)"
+            + " (\(bestGame.date.dateTimeString))"
+            let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+            
+            let resultMessage = [
+                currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine
+            ].joined(separator: "\n")
+            
+            return resultMessage
         }
 }
 
