@@ -4,7 +4,7 @@ import UIKit
 class AlertPresenter {
     
     private let model: AlertModel
-    weak var viewController: UIViewController?
+    weak var alertViewController: UIViewController?
     
     init(modelToShowAlert model: AlertModel){
         self.model = model
@@ -23,6 +23,6 @@ class AlertPresenter {
             handler: { _ in
                 self.model.completion()
             }))
-        viewController?.present(alertController, animated: true)
+        alertViewController?.present(alertController, animated: true)
     }
 }
